@@ -8,7 +8,10 @@ const displayRepo = document.querySelector(".repo-list");
 const repoAppear = document.querySelector(".repos");
 /* Global variable that selects the section where the individual repo info wiil appear */
 const individualRepoData = document.querySelector(".repo-data");
-
+/* Global variable to select the "back to repo gallery" button */
+const repoButton = document.querySelector(".view-repos");
+/* Global variable to select the input with the "search by name" plcaceholder */
+const filterInput = document.querySelector(".filter-repos");
 
 /* 1st function needed to access and pull information from Githiub */
 const gitProfile = async function (){
@@ -40,7 +43,9 @@ const displayData = function (gitData){
   fetchRepo();
 };
 
-/* Function to fetch repo data */
+/* Function to fetch repo data and show search input bar */
+filterInput.classList.remove("hide"); /* Remove "hide" css from filterInput element, which should show a search box as a result */
+
 const fetchRepo = async function (){
     const repoList = await fetch (`https://api.github.com/users/${userName}/repos?sort=updated&per_page=100`); /* API call with endpoints (users/username/repos) and parameters that start after the "?" (sort=updated&per_page=100 - "updated" represent the value for addressing the sort parameter and "100" to represent the value for addressing the per_page paramter) to display the repos in a manner that is sorted from most recently updated to last & from listed from 0 to 100 representing the number of repos to fetch/display -> in the form of an array */
     const repoData = await repoList.json();
@@ -89,7 +94,7 @@ const specRepoName = async function (repoName){
     displaySpecRepoInfo(repoInfo, langArray);
 };
 
-/* Function to display specific repo info */
+/* Function to display specific individual repo info */
 const displaySpecRepoInfo = function(repoInfo, langArray){
     individualRepoData.innerHTML = "";
     let newIndividualRepoDiv = document.createElement("div");
@@ -102,4 +107,32 @@ const displaySpecRepoInfo = function(repoInfo, langArray){
     individualRepoData.append(newIndividualRepoDiv);
     individualRepoData.classList.remove("hide");
     repoAppear.classList.add("hide");
+    repoButton.classList.remove("hide");
 }; 
+
+/* Click event for repo button to take the user back to the repo list */
+repoButton.addEventListener("click", function(){
+    repoAppear.classList.remove("hide");
+    individualRepoData.classList.add("hide");
+    repoButton.classList.add("hide");
+
+});
+
+/* input event for "back to repo gallery" button */
+filterInput.addEventListener("input", function(e){ /* input event listener, which executes the function when input is entered into a spectific element */
+    const searchText = e.target.value; /* The value of the searchText variable is the "target" of the input event listener via "e" parameter */
+
+    const repos = document.querySelectorAll(".repo"); /* Selects all the elements with the .repo class */
+    
+    const searchValue = searchText.toLowerCase(); /* Variable to hold the value of the searchText variable to lowercase */
+
+    repos.forEach(function (repo){  /* Used a forEach loop to loop through each element of the "repos" variable and run the code it for each element looped */
+        const repoText = repo.innerText.toLowerCase(); /* Variable to hold the value of the lowercase innerText for each element with the repo class */
+
+        if (repoText.includes(searchValue)){ /* Conditional statement to check if the "repoText" variable value includes the value of the "searchValue" variable */
+            repo.classList.remove("hide");
+        } else {
+            repo.classList.add("hide");
+        }
+    });
+});
